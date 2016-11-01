@@ -1,4 +1,5 @@
 # Siren Wave
+![wave animation](https://raw.githubusercontent.com/i5sing/i5sing-images/master/siren/wave.gif)   
 
 This is a graphic wave animational effect library implemented by canvas.
 
