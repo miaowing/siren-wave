@@ -13,7 +13,10 @@ export default class Config {
         opt.bgColor = options.bgColor ? options.bgColor : 'white';
         opt.alpha = options.alpha && options.alpha.length > 1 ? options.alpha : [0.4, 0.2];
         opt.callback = options.callback;
-        opt.speed = options.speed ? options.speed : 1;
+        opt.speed = options.speed && options.speed.length > 1 ? options.speed : [0.01 * 0.4, 0.08 * 0.4];
+        opt.angleStep = options.angleStep || 0.01;
+        opt.peak = options.peak || 18;
+        opt.isPositive = options.isPositive || true;
 
         return opt;
     }

@@ -1,6 +1,6 @@
 /*!
- * siren-wave v0.0.1
- * (c) 2016 miaowing
+ * siren-wave v0.0.2
+ * (c) 2017 miaowing
  * Released under the MIT License.
  */
 (function (global, factory) {
@@ -8,123 +8,6 @@
   typeof define === 'function' && define.amd ? define(factory) :
   (global.Siren = factory());
 }(this, (function () { 'use strict';
-
-var asyncGenerator = function () {
-  function AwaitValue(value) {
-    this.value = value;
-  }
-
-  function AsyncGenerator(gen) {
-    var front, back;
-
-    function send(key, arg) {
-      return new Promise(function (resolve, reject) {
-        var request = {
-          key: key,
-          arg: arg,
-          resolve: resolve,
-          reject: reject,
-          next: null
-        };
-
-        if (back) {
-          back = back.next = request;
-        } else {
-          front = back = request;
-          resume(key, arg);
-        }
-      });
-    }
-
-    function resume(key, arg) {
-      try {
-        var result = gen[key](arg);
-        var value = result.value;
-
-        if (value instanceof AwaitValue) {
-          Promise.resolve(value.value).then(function (arg) {
-            resume("next", arg);
-          }, function (arg) {
-            resume("throw", arg);
-          });
-        } else {
-          settle(result.done ? "return" : "normal", result.value);
-        }
-      } catch (err) {
-        settle("throw", err);
-      }
-    }
-
-    function settle(type, value) {
-      switch (type) {
-        case "return":
-          front.resolve({
-            value: value,
-            done: true
-          });
-          break;
-
-        case "throw":
-          front.reject(value);
-          break;
-
-        default:
-          front.resolve({
-            value: value,
-            done: false
-          });
-          break;
-      }
-
-      front = front.next;
-
-      if (front) {
-        resume(front.key, front.arg);
-      } else {
-        back = null;
-      }
-    }
-
-    this._invoke = send;
-
-    if (typeof gen.return !== "function") {
-      this.return = undefined;
-    }
-  }
-
-  if (typeof Symbol === "function" && Symbol.asyncIterator) {
-    AsyncGenerator.prototype[Symbol.asyncIterator] = function () {
-      return this;
-    };
-  }
-
-  AsyncGenerator.prototype.next = function (arg) {
-    return this._invoke("next", arg);
-  };
-
-  AsyncGenerator.prototype.throw = function (arg) {
-    return this._invoke("throw", arg);
-  };
-
-  AsyncGenerator.prototype.return = function (arg) {
-    return this._invoke("return", arg);
-  };
-
-  return {
-    wrap: function (fn) {
-      return function () {
-        return new AsyncGenerator(fn.apply(this, arguments));
-      };
-    },
-    await: function (value) {
-      return new AwaitValue(value);
-    }
-  };
-}();
-
-
-
-
 
 var classCallCheck = function (instance, Constructor) {
   if (!(instance instanceof Constructor)) {
@@ -242,7 +125,10 @@ var Config = function () {
             opt.bgColor = options.bgColor ? options.bgColor : 'white';
             opt.alpha = options.alpha && options.alpha.length > 1 ? options.alpha : [0.4, 0.2];
             opt.callback = options.callback;
-            opt.speed = options.speed ? options.speed : 1;
+            opt.speed = options.speed && options.speed.length > 1 ? options.speed : [0.01 * 0.4, 0.08 * 0.4];
+            opt.angleStep = options.angleStep || 0.01;
+            opt.peak = options.peak || 18;
+            opt.isPositive = options.isPositive || true;
 
             return opt;
         }
@@ -275,13 +161,14 @@ var Wave = function () {
         this.yEnd = options.yEnd || 0;
         this.xEnd = options.xEnd || 0;
         this.xStep = 1;
-        this.angleStep = 0.025;
+        this.angleStep = options.angleStep || 0.01;
         this.angle = 0;
         this.alpha = options.alpha ? options.alpha : 1;
         this.peak = options.peak ? options.peak : 18;
         this.yOffset = options.yOffset ? options.yOffset : 0;
         this.speed = options.speed ? options.speed : 0.06;
         this.count = Math.PI / 2;
+        this.isPositive = options.isPositive || true;
     }
 
     createClass(Wave, [{
@@ -312,7 +199,7 @@ var Wave = function () {
             while (this.xPos < this.xEnd) {
                 var nextXPos = this.xPos + this.xStep;
                 var nextYPos = Math.sin(this.angle) * this.peak + this.yOffset;
-                var nextAngle = this.angle + this.angleStep;
+                var nextAngle = this.isPositive ? this.angle - this.angleStep : this.angle + this.angleStep;
 
                 ctx.moveTo(this.xPos - 0.5, this.yPos);
                 ctx.lineTo(this.xPos - 0.5, this.yEnd);
@@ -380,7 +267,10 @@ var Siren = function () {
                 yOffset: 0,
                 yEnd: this.options.height,
                 xEnd: this.options.width,
-                speed: 0.06 * this.options.speed
+                speed: this.options.speed[0],
+                angleStep: this.options.angleStep,
+                peak: this.options.peak,
+                isPositive: this.options.isPositive
             });
 
             this.waveBehind = new Wave({
@@ -388,14 +278,16 @@ var Siren = function () {
                 yOffset: -4,
                 yEnd: this.options.height,
                 xEnd: this.options.width,
-                speed: 0.07 * this.options.speed
+                speed: this.options.speed[1],
+                angleStep: this.options.angleStep,
+                peak: this.options.peak,
+                isPositive: this.options.isPositive
             });
         }
     }, {
         key: 'update',
         value: function update(options) {
             extend(this.options, options);
-            cancelAnimationFrame(this.timerId);
 
             if (options.height) {
                 this.canvas.setAttribute('height', options.height);
@@ -419,6 +311,7 @@ var Siren = function () {
             this.waveBehind.render(this.ctx);
             this.waveFront.render(this.ctx);
 
+            cancelAnimationFrame(this.timerId);
             this.timerId = requestAnimationFrame(this.draw.bind(this));
         }
     }]);

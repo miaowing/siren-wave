@@ -10,13 +10,14 @@ export default class Wave {
         this.yEnd = options.yEnd || 0;
         this.xEnd = options.xEnd || 0;
         this.xStep = 1;
-        this.angleStep = 0.025;
+        this.angleStep = options.angleStep || 0.01;
         this.angle = 0;
         this.alpha = options.alpha ? options.alpha : 1;
         this.peak = options.peak ? options.peak : 18;
         this.yOffset = options.yOffset ? options.yOffset : 0;
         this.speed = options.speed ? options.speed : 0.06;
         this.count = Math.PI / 2;
+        this.isPositive = options.isPositive || true;
     }
 
     getAngle() {
@@ -41,9 +42,9 @@ export default class Wave {
         ctx.beginPath();
 
         while (this.xPos < this.xEnd) {
-            var nextXPos = this.xPos + this.xStep;
-            var nextYPos = Math.sin(this.angle) * this.peak + this.yOffset;
-            var nextAngle = this.angle + this.angleStep;
+            const nextXPos = this.xPos + this.xStep;
+            const nextYPos = Math.sin(this.angle) * this.peak + this.yOffset;
+            const nextAngle = this.isPositive ? (this.angle - this.angleStep) : (this.angle + this.angleStep);
 
             ctx.moveTo(this.xPos - 0.5, this.yPos);
             ctx.lineTo(this.xPos - 0.5, this.yEnd);

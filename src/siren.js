@@ -41,7 +41,10 @@ export default class Siren {
             yOffset: 0,
             yEnd: this.options.height,
             xEnd: this.options.width,
-            speed: 0.06 * this.options.speed
+            speed: this.options.speed[0],
+            angleStep: this.options.angleStep,
+            peak: this.options.peak,
+            isPositive: this.options.isPositive
         });
 
         this.waveBehind = new Wave({
@@ -49,13 +52,15 @@ export default class Siren {
             yOffset: -4,
             yEnd: this.options.height,
             xEnd: this.options.width,
-            speed: 0.07 * this.options.speed
+            speed: this.options.speed[1],
+            angleStep: this.options.angleStep,
+            peak: this.options.peak,
+            isPositive: this.options.isPositive
         });
     }
 
     update(options) {
         extend(this.options, options);
-        cancelAnimationFrame(this.timerId);
 
         if (options.height) {
             this.canvas.setAttribute('height', options.height);
@@ -82,6 +87,7 @@ export default class Siren {
         this.waveBehind.render(this.ctx);
         this.waveFront.render(this.ctx);
 
+        cancelAnimationFrame(this.timerId);
         this.timerId = requestAnimationFrame(this.draw.bind(this));
     }
 }
