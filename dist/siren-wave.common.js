@@ -117,14 +117,19 @@ var Config = function () {
             opt.target = options.target;
             opt.width = options.width;
             opt.height = options.height;
-            opt.color = options.color ? options.color : '#7cd5f4';
             opt.bgColor = options.bgColor ? options.bgColor : 'white';
-            opt.alpha = options.alpha && options.alpha.length > 1 ? options.alpha : [0.4, 0.2];
+            opt.waves = options.waves || [];
+            opt.color = options.color ? options.color : '#7cd5f4';
             opt.callback = options.callback;
-            opt.speed = options.speed && options.speed.length > 1 ? options.speed : [0.01 * 0.4, 0.08 * 0.4];
-            opt.angleStep = options.angleStep || 0.01;
-            opt.peak = options.peak || 18;
-            opt.isPositive = options.isPositive || true;
+
+            /*
+             move in waves.
+              opt.alpha = options.alpha && options.alpha.length > 1 ? options.alpha : [0.4, 0.2];
+             opt.speed = options.speed && options.speed.length > 1 ? options.speed : [0.01 * 0.4, 0.08 * 0.4];
+             opt.angleStep = options.angleStep || 0.01;
+             opt.peak = options.peak || 18;
+             opt.isPositive = options.isPositive || true;
+             */
 
             return opt;
         }
@@ -227,6 +232,7 @@ var Siren = function () {
         classCallCheck(this, Siren);
 
         this.options = Config.getOptions(options);
+        this.waveList = [];
         this.ctx = this.getCanvasContext();
         this.timerId = null;
 
@@ -258,26 +264,22 @@ var Siren = function () {
     }, {
         key: 'createWaves',
         value: function createWaves() {
-            this.waveFront = new Wave({
-                alpha: this.options.alpha[0],
-                yOffset: 0,
-                yEnd: this.options.height,
-                xEnd: this.options.width,
-                speed: this.options.speed[0],
-                angleStep: this.options.angleStep,
-                peak: this.options.peak,
-                isPositive: this.options.isPositive
-            });
+            var _this = this;
 
-            this.waveBehind = new Wave({
-                alpha: this.options.alpha[1],
-                yOffset: -4,
-                yEnd: this.options.height,
-                xEnd: this.options.width,
-                speed: this.options.speed[1],
-                angleStep: this.options.angleStep,
-                peak: this.options.peak,
-                isPositive: this.options.isPositive
+            this.waveList = [];
+            this.waves = this.options.waves;
+
+            this.waves.forEach(function (opt) {
+                _this.waveList.push(new Wave({
+                    alpha: opt.alpha,
+                    yOffset: opt.yOffset,
+                    yEnd: _this.options.height,
+                    xEnd: _this.options.width,
+                    speed: opt.speed,
+                    angleStep: opt.angleStep,
+                    peak: opt.peak,
+                    isPositive: opt.isPositive
+                }));
             });
         }
     }, {
@@ -297,15 +299,17 @@ var Siren = function () {
             this.ctx.lineWidth = 1;
             this.ctx.translate(this.options.width / 2, this.options.height / 2);
             this.createWaves();
-            this.draw();
         }
     }, {
         key: 'draw',
         value: function draw() {
+            var _this2 = this;
+
             this.ctx.clearRect(-this.options.width / 2, -this.options.height / 2, this.options.width, this.options.height);
 
-            this.waveBehind.render(this.ctx);
-            this.waveFront.render(this.ctx);
+            this.waveList.forEach(function (wave) {
+                return wave.render(_this2.ctx);
+            });
 
             cancelAnimationFrame(this.timerId);
             this.timerId = requestAnimationFrame(this.draw.bind(this));

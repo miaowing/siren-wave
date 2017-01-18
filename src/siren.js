@@ -8,6 +8,7 @@ import {extend} from './utils';
 export default class Siren {
     constructor(options = {}) {
         this.options = Config.getOptions(options);
+        this.waveList = [];
         this.ctx = this.getCanvasContext();
         this.timerId = null;
 
@@ -36,26 +37,20 @@ export default class Siren {
     }
 
     createWaves() {
-        this.waveFront = new Wave({
-            alpha: this.options.alpha[0],
-            yOffset: 0,
-            yEnd: this.options.height,
-            xEnd: this.options.width,
-            speed: this.options.speed[0],
-            angleStep: this.options.angleStep,
-            peak: this.options.peak,
-            isPositive: this.options.isPositive
-        });
+        this.waveList = [];
+        this.waves = this.options.waves;
 
-        this.waveBehind = new Wave({
-            alpha: this.options.alpha[1],
-            yOffset: -4,
-            yEnd: this.options.height,
-            xEnd: this.options.width,
-            speed: this.options.speed[1],
-            angleStep: this.options.angleStep,
-            peak: this.options.peak,
-            isPositive: this.options.isPositive
+        this.waves.forEach(opt => {
+            this.waveList.push(new Wave({
+                alpha: opt.alpha,
+                yOffset: opt.yOffset,
+                yEnd: this.options.height,
+                xEnd: this.options.width,
+                speed: opt.speed,
+                angleStep: opt.angleStep,
+                peak: opt.peak,
+                isPositive: opt.isPositive
+            }));
         });
     }
 
@@ -74,7 +69,6 @@ export default class Siren {
         this.ctx.lineWidth = 1;
         this.ctx.translate(this.options.width / 2, this.options.height / 2);
         this.createWaves();
-        this.draw();
     }
 
     draw() {
@@ -84,8 +78,7 @@ export default class Siren {
             this.options.width,
             this.options.height);
 
-        this.waveBehind.render(this.ctx);
-        this.waveFront.render(this.ctx);
+        this.waveList.forEach(wave => wave.render(this.ctx));
 
         cancelAnimationFrame(this.timerId);
         this.timerId = requestAnimationFrame(this.draw.bind(this));

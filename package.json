@@ -1,6 +1,6 @@
 {
   "name": "siren-wave",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "a wave drawing library by canvas",
   "main": "dist/siren-wave.common.js",
   "scripts": {
