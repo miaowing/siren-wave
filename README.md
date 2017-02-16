@@ -58,37 +58,37 @@ siren.draw();
 ## API
 
 ### new Siren(options)
-###### 1. target
+##### 1. target
 the element id.
 
-###### 2. width [number]
+##### 2. width [number]
 it's optional, if it does not exist, the canvas's width will be it parent's width.
 
-###### 3. height [number]
+##### 3. height [number]
 it's optional.
 
-###### 4. color [#rgb]
+##### 4. color [#rgb]
 wave's color.
 
-###### 5. bgColor [#rgb]
+##### 5. bgColor [#rgb]
 background color.
 
-###### 6. waves [array]
+##### 6. waves [array]
 
 ### wave
-###### 1. alpha [array]
-the alpha of two waves, such as [0.6, 0.3].
+##### 1. alpha [number]
+the alpha of wave.
 
-###### 2. speed [array]
-wave's speed, such as [0.01 * 0.4, 0.08 * 0.4].
+##### 2. speed [number]
+wave's speed.
 
-###### 3. angleStep [number]
+##### 3. angleStep [number]
 wave's angle, default is 0.01.
 
-###### 4. peak [number]
+##### 4. peak [number]
 wave's height.
 
-###### 5. isPositive [boolean]
+##### 5. isPositive [boolean]
 wave moves from left to right or moves right to left.
 
 ### siren.draw()
