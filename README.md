@@ -94,6 +94,9 @@ wave moves from left to right or moves right to left.
 ### siren.draw()
 start wave animation.
 
+### siren.stop();
+stop wave animation.
+
 ### siren.update(options)
 update some params.
 

@@ -83,4 +83,11 @@ export default class Siren {
         cancelAnimationFrame(this.timerId);
         this.timerId = requestAnimationFrame(this.draw.bind(this));
     }
+
+    stop() {
+        if (this.timerId) {
+            cancelAnimationFrame(this.timerId);
+            this.timerId = null;
+        }
+    }
 }

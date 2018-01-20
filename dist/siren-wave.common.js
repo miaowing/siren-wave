@@ -1,6 +1,6 @@
 /*!
- * siren-wave v0.0.2
- * (c) 2017 miaowing
+ * siren-wave v0.1.0
+ * (c) 2018 miaowing
  * Released under the MIT License.
  */
 'use strict';
@@ -313,6 +313,14 @@ var Siren = function () {
 
             cancelAnimationFrame(this.timerId);
             this.timerId = requestAnimationFrame(this.draw.bind(this));
+        }
+    }, {
+        key: 'stop',
+        value: function stop() {
+            if (this.timerId) {
+                cancelAnimationFrame(this.timerId);
+                this.timerId = null;
+            }
         }
     }]);
     return Siren;
